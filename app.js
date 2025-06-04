@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         postContentDiv.innerHTML = '<p>Loading...</p>';
         try {
-            const response = await fetch(`https://raw.githubusercontent.com/AChingYo/blog/master/posts/${fileName}`);
+            const response = await fetch(`https://raw.githubusercontent.com/AChingYo/blog/master/posts/${fileName}`, { cache: 'no-store' });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status} while fetching ${fileName}`);
             }
