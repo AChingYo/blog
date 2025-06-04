@@ -40,44 +40,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status} while fetching ${fileName}`);
             }
-            const rawText = await response.text();
-            let contentToParse = rawText;
+            let markdownText = await response.text();
 
-            // Refined YAML frontmatter stripping logic
-            if (rawText.startsWith('---')) {
-                const lines = rawText.split('\n');
-                // Check if the first line, when trimmed, is exactly '---'
-                if (lines.length > 0 && lines[0].trim() === '---') {
-                    // Potential frontmatter started. Search for the closing '---'.
-                    let secondSeparatorLineIndex = -1;
-                    for (let i = 1; i < lines.length; i++) {
-                        if (lines[i].trim() === '---') {
-                            secondSeparatorLineIndex = i;
-                            break;
-                        }
+            // Strip YAML frontmatter
+            const firstSeparator = markdownText.indexOf('---');
+            if (firstSeparator === 0 || (firstSeparator > 0 && markdownText[firstSeparator-1] === '\n')) {
+                const secondSeparator = markdownText.indexOf('---', firstSeparator + 3);
+                if (secondSeparator !== -1) {
+                    const afterSecondSeparator = markdownText.indexOf('\n', secondSeparator + 3);
+                    if (afterSecondSeparator !== -1) {
+                        markdownText = markdownText.substring(afterSecondSeparator + 1);
+                    } else {
+                        // Edge case: file ends right after the second '---'
+                        markdownText = '';
                     }
-
-                    if (secondSeparatorLineIndex !== -1) {
-                        // Found the second '---' line.
-                        // Content for marked.js is everything *after* this line.
-                        contentToParse = lines.slice(secondSeparatorLineIndex + 1).join('\n');
-                    }
-                    // If secondSeparatorLineIndex is -1, it means the file started with '---'
-                    // but no matching '---' line was found (malformed frontmatter).
-                    // In this case, contentToParse remains the original rawText,
-                    // effectively treating the whole content as Markdown.
                 }
-                // If the first line wasn't '---' (e.g. '--- some text'),
-                // it's not considered valid frontmatter for stripping.
-                // contentToParse remains rawText.
             }
 
-            // Ensure that if the derived content is only whitespace, an empty string is passed to marked.js.
-            if (contentToParse.trim() === '') {
-                contentToParse = '';
-            }
-
-            postContentDiv.innerHTML = renderMarkdown(contentToParse);
+            postContentDiv.innerHTML = renderMarkdown(markdownText);
         } catch (error) {
             console.error('Error fetching post:', error);
             postContentDiv.innerHTML = `<p>Error loading post: ${error.message}. Check the console for more details.</p>`;
