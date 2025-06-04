@@ -98,20 +98,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial setup
     loadPostList();
 
-    // Optional: Load a post based on URL hash or default to first post
-    if (window.location.hash) {
-        const postFromHash = window.location.hash.substring(1); // Remove #
-        if (posts.includes(postFromHash)) {
-            fetchAndDisplayPost(postFromHash);
+    function initializeDiary() {
+        // Optional: Load a post based on URL hash or default to first post
+        if (window.location.hash) {
+            const postFromHash = window.location.hash.substring(1); // Remove #
+            if (posts.includes(postFromHash)) {
+                fetchAndDisplayPost(postFromHash);
+            } else if (posts.length > 0) {
+                // Fallback to first post if hash is invalid
+                fetchAndDisplayPost(posts[0]);
+            } else {
+                 if (postContentDiv) postContentDiv.innerHTML = '<p>No posts found.</p>';
+            }
         } else if (posts.length > 0) {
-            // Fallback to first post if hash is invalid
-            fetchAndDisplayPost(posts[0]);
+            fetchAndDisplayPost(posts[0]); // Load the first post by default
         } else {
-             if (postContentDiv) postContentDiv.innerHTML = '<p>No posts found.</p>';
+            if (postContentDiv) postContentDiv.innerHTML = '<p>No posts found.</p>';
         }
-    } else if (posts.length > 0) {
-        fetchAndDisplayPost(posts[0]); // Load the first post by default
+    }
+
+    const markedScript = document.getElementById('marked-script');
+
+    if (typeof marked !== 'undefined') {
+        initializeDiary();
+    } else if (markedScript) {
+        markedScript.onload = initializeDiary;
     } else {
-        if (postContentDiv) postContentDiv.innerHTML = '<p>No posts found.</p>';
+        // Fallback if script tag not found, though this shouldn't happen with the ID in place
+        console.error('Marked script tag not found. Initial post loading might fail.');
+        // Try to initialize anyway, or provide a user message
+        initializeDiary();
     }
 });
