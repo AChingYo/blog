@@ -1,0 +1,101 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    margin: 20px;
+    gap: 20px;
+}
+
+nav {
+    background: #fff;
+    padding: 20px;
+    width: 250px; /* Fixed width for navigation */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+nav h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin-bottom: 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #337ab7;
+    cursor: pointer; /* Indicate it's clickable */
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+main#post-content {
+    background: #fff;
+    padding: 20px;
+    flex-grow: 1; /* Takes remaining space */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Basic styling for Markdown elements that will be rendered */
+main#post-content h1,
+main#post-content h2,
+main#post-content h3 {
+    color: #333;
+}
+
+main#post-content p {
+    margin-bottom: 1em;
+}
+
+main#post-content a {
+    color: #337ab7;
+}
+
+main#post-content pre {
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+main#post-content code {
+    font-family: monospace;
+}
+
+main#post-content blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 10px;
+    margin-left: 0;
+    font-style: italic;
+}
+
+main#post-content ul, main#post-content ol {
+    margin-left: 20px;
+}
