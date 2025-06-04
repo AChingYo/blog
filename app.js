@@ -40,8 +40,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status} while fetching ${fileName}`);
             }
-            const markdownText = await response.text();
-            postContentDiv.innerHTML = renderMarkdown(markdownText);
+            const rawText = await response.text();
+            let contentToParse = rawText;
+
+            // Refined YAML frontmatter stripping logic
+            if (rawText.startsWith('---')) {
+                const lines = rawText.split('\n');
+                // Check if the first line, when trimmed, is exactly '---'
+                if (lines.length > 0 && lines[0].trim() === '---') {
+                    // Potential frontmatter started. Search for the closing '---'.
+                    let secondSeparatorLineIndex = -1;
+                    for (let i = 1; i < lines.length; i++) {
+                        if (lines[i].trim() === '---') {
+                            secondSeparatorLineIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (secondSeparatorLineIndex !== -1) {
+                        // Found the second '---' line.
+                        // Content for marked.js is everything *after* this line.
+                        contentToParse = lines.slice(secondSeparatorLineIndex + 1).join('\n');
+                    }
+                    // If secondSeparatorLineIndex is -1, it means the file started with '---'
+                    // but no matching '---' line was found (malformed frontmatter).
+                    // In this case, contentToParse remains the original rawText,
+                    // effectively treating the whole content as Markdown.
+                }
+                // If the first line wasn't '---' (e.g. '--- some text'),
+                // it's not considered valid frontmatter for stripping.
+                // contentToParse remains rawText.
+            }
+
+            // Ensure that if the derived content is only whitespace, an empty string is passed to marked.js.
+            if (contentToParse.trim() === '') {
+                contentToParse = '';
+            }
+
+            postContentDiv.innerHTML = renderMarkdown(contentToParse);
         } catch (error) {
             console.error('Error fetching post:', error);
             postContentDiv.innerHTML = `<p>Error loading post: ${error.message}. Check the console for more details.</p>`;
