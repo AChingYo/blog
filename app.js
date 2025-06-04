@@ -40,7 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status} while fetching ${fileName}`);
             }
-            const markdownText = await response.text();
+            let markdownText = await response.text();
+
+            // Strip YAML frontmatter
+            const firstSeparator = markdownText.indexOf('---');
+            if (firstSeparator === 0 || (firstSeparator > 0 && markdownText[firstSeparator-1] === '\n')) {
+                const secondSeparator = markdownText.indexOf('---', firstSeparator + 3);
+                if (secondSeparator !== -1) {
+                    const afterSecondSeparator = markdownText.indexOf('\n', secondSeparator + 3);
+                    if (afterSecondSeparator !== -1) {
+                        markdownText = markdownText.substring(afterSecondSeparator + 1);
+                    } else {
+                        // Edge case: file ends right after the second '---'
+                        markdownText = '';
+                    }
+                }
+            }
+
             postContentDiv.innerHTML = renderMarkdown(markdownText);
         } catch (error) {
             console.error('Error fetching post:', error);
