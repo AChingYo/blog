@@ -99,3 +99,73 @@ main#post-content blockquote {
 main#post-content ul, main#post-content ol {
     margin-left: 20px;
 }
+
+/* Filter Controls Styling */
+#filter-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Increased gap for modern look */
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    position: relative; /* For potential absolute positioning of icons */
+}
+
+.filter-item input[type="text"],
+.filter-item input[type="date"] { /* Keep date for now, even if text */
+    flex-grow: 1; /* Input takes available space */
+    padding: 10px;
+    border: 1px solid #ddd; /* Lighter border */
+    border-radius: 5px; /* Slightly more rounded */
+    font-size: 0.95em;
+    padding-right: 35px; /* Space for icon */
+}
+
+.filter-item i { /* Targeting Font Awesome icons directly */
+    position: absolute;
+    right: 12px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777; /* Muted icon color */
+    pointer-events: none; /* So it doesn't interfere with input click */
+}
+
+/* Tag Filter Specifics */
+#tag-filter-wrapper #tag-pool-container { /* More specific selector for width */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px;
+    width: 100%; /* Make it take full width of its .filter-item container */
+    box-sizing: border-box;
+}
+
+#tag-input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    padding: 6px 0; /* Minimal padding */
+    font-size: 0.95em;
+}
+
+.tag-badge {
+    background-color: #e0e0e0; /* Lighter, modern badge color */
+    color: #333;
+    padding: 6px 10px;
+    border-radius: 15px; /* Pill-shaped badges */
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    cursor: default; /* Default cursor, can add remove later */
+}
+
+/* Add a little more style to the placeholder text */
+input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
