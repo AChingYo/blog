@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Diary</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -17,10 +18,21 @@
         <nav>
             <h2>Posts</h2>
             <div id="filter-controls">
-                <input type="text" id="filter-title" placeholder="Filter by title...">
-                <input type="date" id="filter-date" placeholder="Filter by date...">
-                <input type="text" id="filter-category" placeholder="Filter by category...">
-                <input type="text" id="filter-tags" placeholder="Filter by tags (comma-separated)...">
+                <div class="filter-item">
+                    <input type="text" id="filter-title" placeholder="Filter by title..."><i id="title-filter-icon" class="fas fa-search"></i>
+                </div>
+                <div class="filter-item">
+                    <input type="text" id="filter-date" placeholder="Filter by date..."><i id="date-filter-icon" class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="filter-item">
+                    <input type="text" id="filter-category" placeholder="Filter by category..."><i id="category-filter-icon" class="fas fa-folder"></i>
+                </div>
+                <div class="filter-item" id="tag-filter-wrapper">
+                    <div id="tag-pool-container">
+                        <input type="text" id="tag-input" placeholder="Add a tag...">
+                        <div id="tags-display-area"></div>
+                    </div>
+                </div>
                 <button id="filter-button">Filter</button>
             </div>
             <ul id="post-list">

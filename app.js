@@ -4,11 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterTitleInput = document.getElementById('filter-title');
     const filterDateInput = document.getElementById('filter-date');
     const filterCategoryInput = document.getElementById('filter-category');
-    const filterTagsInput = document.getElementById('filter-tags');
+    // const filterTagsInput = document.getElementById('filter-tags'); // Removed
+    const tagInput = document.getElementById('tag-input');
+    const tagsDisplayArea = document.getElementById('tags-display-area');
     const filterButton = document.getElementById('filter-button');
 
     let allPostsData = []; // To store post data including frontmatter
     let currentlyDisplayedPosts = []; // To store the posts currently shown in the list
+    let activeTags = []; // To store current active filter tags
 
     // In a real scenario, you might fetch this list from a server
     // or a manifest file. For now, it's hardcoded.
@@ -49,6 +52,52 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         return frontmatter;
+    }
+
+    function addTag(tagText) {
+        const trimmedTag = tagText.trim();
+        if (!trimmedTag || activeTags.includes(trimmedTag.toLowerCase())) {
+            return;
+        }
+        activeTags.push(trimmedTag.toLowerCase());
+
+        const tagBadge = document.createElement('span');
+        tagBadge.classList.add('tag-badge');
+        tagBadge.textContent = trimmedTag;
+
+        const removeTagSpan = document.createElement('span');
+        removeTagSpan.classList.add('remove-tag');
+        removeTagSpan.innerHTML = '&times;'; // 'x' symbol
+        removeTagSpan.style.marginLeft = '5px';
+        removeTagSpan.style.cursor = 'pointer';
+        removeTagSpan.dataset.tag = trimmedTag.toLowerCase();
+
+        removeTagSpan.addEventListener('click', () => {
+            removeTag(trimmedTag.toLowerCase());
+            filterPosts(); // Re-filter posts after removing a tag
+        });
+
+        tagBadge.appendChild(removeTagSpan);
+        tagsDisplayArea.appendChild(tagBadge);
+    }
+
+    function removeTag(tagText) {
+        activeTags = activeTags.filter(t => t !== tagText.toLowerCase());
+        const badgeToRemove = tagsDisplayArea.querySelector(`.tag-badge .remove-tag[data-tag="${tagText.toLowerCase()}"]`);
+        if (badgeToRemove && badgeToRemove.parentElement) {
+            tagsDisplayArea.removeChild(badgeToRemove.parentElement);
+        }
+    }
+
+    if (tagInput) {
+        tagInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && tagInput.value.trim() !== '') {
+                event.preventDefault();
+                addTag(tagInput.value);
+                tagInput.value = '';
+                filterPosts(); // Re-filter posts after adding a tag
+            }
+        });
     }
 
     // Placeholder for Markdown rendering
@@ -191,8 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const titleFilter = filterTitleInput.value.toLowerCase();
         const dateFilter = filterDateInput.value;
         const categoryFilter = filterCategoryInput.value.toLowerCase();
-        const tagsFilterText = filterTagsInput.value.toLowerCase();
-        const tagsFilter = tagsFilterText ? tagsFilterText.split(',').map(t => t.trim()).filter(t => t) : [];
+        // const tagsFilterText = filterTagsInput.value.toLowerCase(); // Removed
+        // const tagsFilter = tagsFilterText ? tagsFilterText.split(',').map(t => t.trim()).filter(t => t) : []; // Removed
 
         currentlyDisplayedPosts = allPostsData.filter(post => {
             const postTitle = (post.title || '').toLowerCase();
@@ -209,7 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (categoryFilter && !postCategories.includes(categoryFilter)) {
                 return false;
             }
-            if (tagsFilter.length > 0 && !tagsFilter.some(filterTag => postTags.includes(filterTag))) {
+            // Updated tag filtering logic
+            if (activeTags.length > 0 && !activeTags.every(filterTag => postTags.includes(filterTag.toLowerCase()))) {
+                // If you want posts that include *any* of the activeTags, use .some() instead of .every()
+                // For example: if (activeTags.length > 0 && !activeTags.some(filterTag => postTags.includes(filterTag.toLowerCase())))
                 return false;
             }
             return true;
@@ -269,7 +321,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filterTitleInput) filterTitleInput.value = '';
         if (filterDateInput) filterDateInput.value = '';
         if (filterCategoryInput) filterCategoryInput.value = '';
-        if (filterTagsInput) filterTagsInput.value = '';
+        // if (filterTagsInput) filterTagsInput.value = ''; // Removed
+
+        activeTags = []; // Clear active tags array
+        if (tagsDisplayArea) tagsDisplayArea.innerHTML = ''; // Clear displayed tags
 
         loadPostList(); // This will now fetch frontmatter, populate list, and then call initializeDiaryAfterListLoad
     }
