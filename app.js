@@ -79,6 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tagBadge.appendChild(removeTagSpan);
         tagsDisplayArea.appendChild(tagBadge);
+
+        const poolTagElement = document.querySelector(`#tag-pool-available .pool-tag[data-tag="${trimmedTag.toLowerCase()}"]`);
+        if (poolTagElement) {
+            poolTagElement.classList.add('pool-tag-active');
+        }
     }
 
     function removeTag(tagText) {
@@ -86,6 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const badgeToRemove = tagsDisplayArea.querySelector(`.tag-badge .remove-tag[data-tag="${tagText.toLowerCase()}"]`);
         if (badgeToRemove && badgeToRemove.parentElement) {
             tagsDisplayArea.removeChild(badgeToRemove.parentElement);
+        }
+
+        const poolTagElement = document.querySelector(`#tag-pool-available .pool-tag[data-tag="${tagText.toLowerCase()}"]`);
+        if (poolTagElement) {
+            poolTagElement.classList.remove('pool-tag-active');
         }
     }
 
@@ -160,6 +170,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function displayUniqueTags(posts) {
+        const tagPoolAvailableDiv = document.getElementById('tag-pool-available');
+        if (!tagPoolAvailableDiv) {
+            console.warn('Tag pool available div not found.');
+            return;
+        }
+        tagPoolAvailableDiv.innerHTML = ''; // Clear previous tags
+
+        const uniqueTags = new Set();
+        posts.forEach(post => {
+            if (post.tags && Array.isArray(post.tags)) {
+                post.tags.forEach(tag => {
+                    if (tag.trim() !== '') {
+                        uniqueTags.add(tag.trim().toLowerCase());
+                    }
+                });
+            }
+        });
+
+        if (uniqueTags.size === 0) {
+            tagPoolAvailableDiv.innerHTML = '<p style="font-size: 0.9em; color: #777;">No tags found in posts.</p>';
+            return;
+        }
+
+        uniqueTags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.classList.add('tag-badge', 'pool-tag'); // Add 'pool-tag' for specific styling/selection
+            tagElement.textContent = tag;
+            tagElement.dataset.tag = tag; // Store tag name in dataset for easy access
+
+            // Add click event listener
+            tagElement.addEventListener('click', () => {
+                addTag(tag); // Add the tag to active filters
+                filterPosts(); // Re-filter posts
+            });
+
+            tagPoolAvailableDiv.appendChild(tagElement);
+        });
+    }
+
     function loadPostList() {
         if (!postListUl) {
             console.error('Error: post-list ul not found.');
@@ -198,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             currentlyDisplayedPosts = [...allPostsData]; // Initially, all posts are displayed
             populatePostList(currentlyDisplayedPosts);
+            displayUniqueTags(allPostsData); // Display unique tags
             initializeDiaryAfterListLoad();
         }).catch(error => {
             console.error("Error fetching or parsing frontmatter for post list:", error);
@@ -325,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         activeTags = []; // Clear active tags array
         if (tagsDisplayArea) tagsDisplayArea.innerHTML = ''; // Clear displayed tags
+        if (document.getElementById('tag-pool-available')) document.getElementById('tag-pool-available').innerHTML = ''; // Clear available tags pool
 
         loadPostList(); // This will now fetch frontmatter, populate list, and then call initializeDiaryAfterListLoad
     }
